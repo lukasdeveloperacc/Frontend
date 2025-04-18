@@ -1,4 +1,4 @@
-FROM node:23
+FROM node:23-slim
 
 COPY package* .
 RUN npm install
