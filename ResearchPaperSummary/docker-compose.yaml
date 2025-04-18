@@ -1,0 +1,20 @@
+services:
+  web-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    working_dir: /app
+    volumes:
+      - ./project:/app
+    ports:
+      - 5173:5173
+    stdin_open: true 
+    tty: true
+
+  web-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    working_dir: /app
+    ports:
+      - 5173:5173
