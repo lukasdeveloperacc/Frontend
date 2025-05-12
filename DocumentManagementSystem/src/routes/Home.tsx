@@ -33,12 +33,9 @@ function GoogleLoginButton() {
 }
 
 function Home() {
-  return (
-    <>
-      <h1>Home</h1>
-      <GoogleLoginButton />
-    </>
-  );
+  const login = false;
+
+  return <>{login ? <h1>Home</h1> : <GoogleLoginButton />}</>;
 }
 
 export default Home;
