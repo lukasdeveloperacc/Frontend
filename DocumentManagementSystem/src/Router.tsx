@@ -1,10 +1,10 @@
 import { createBrowserRouter } from "react-router-dom";
 import Root from "./Root";
-import Contacts from "./screens/Contacts";
-import Documents from "./screens/Documents";
-import Home from "./screens/Home";
-import NotFound from "./screens/NotFound";
-import Developing from "./screens/Developing";
+import Contacts from "./routes/Contacts";
+import Documents from "./routes/Documents";
+import Home from "./routes/Home";
+import NotFound from "./routes/NotFound";
+import Developing from "./routes/Developing";
 
 const router = createBrowserRouter([
   {

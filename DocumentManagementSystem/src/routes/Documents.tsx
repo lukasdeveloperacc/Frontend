@@ -4,12 +4,14 @@ import { useRecoilValue } from "recoil";
 import { customerContacs } from "../atoms";
 
 type Contact = {
+  id: string;
   name: string;
   address: string;
   phone: string;
 };
 
 type Document = {
+  id: string;
   file: File;
   fileName: string;
   uploaded: string;
