@@ -1,41 +1,41 @@
-function GoogleLoginButton() {
-  const handleLogin = async () => {
-    const SCOPE = [
-      "openid",
-      "email",
-      "profile",
-      "https://www.googleapis.com/auth/drive.file",
-    ].join(" ");
-
-    const params = new URLSearchParams({
-      response_type: "code",
-      client_id:
-        "956757050949-0svmsp5s2g7s16cs5ojldec1jkp9n909.apps.googleusercontent.com",
-      redirect_uri: "http://localhost:5174",
-      scope: SCOPE,
-      access_type: "offline",
-      prompt: "consent",
-    });
-
-    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
-  };
-
-  return (
-    <div className="flex justify-center items-center h-screen">
-      <button
-        onClick={handleLogin}
-        className="bg-blue-500 text-white px-6 py-2 rounded"
-      >
-        Sign in with Google
-      </button>
-    </div>
-  );
-}
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import callback from "../apis/callback";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { token } from "../atoms";
+import { useQuery } from "@tanstack/react-query";
 
 function Home() {
-  const login = false;
+  const navigate = useNavigate();
+  const authToken: string = useRecoilValue(token);
+  const setToken = useSetRecoilState(token);
+  const code: string | null = new URLSearchParams(window.location.search).get(
+    "code"
+  );
+  const { isLoading, data } = useQuery({
+    queryKey: ["auth"],
+    queryFn: () => callback(code),
+    enabled: !!code,
+  });
 
-  return <>{login ? <h1>Home</h1> : <GoogleLoginButton />}</>;
+  useEffect(() => {
+    if (data?.token) {
+      setToken(data.token);
+      navigate("/contacts");
+    } else if (!code) {
+      navigate("/login");
+    }
+  }, [data, code, navigate, setToken]);
+
+  return (
+    <>
+      {authToken ? (
+        <h1>{isLoading ? "Wating..." : data?.token}</h1>
+      ) : (
+        navigate("/login")
+      )}
+    </>
+  );
 }
 
 export default Home;

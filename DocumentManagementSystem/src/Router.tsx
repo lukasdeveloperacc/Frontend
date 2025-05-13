@@ -5,6 +5,8 @@ import Documents from "./routes/Documents";
 import Home from "./routes/Home";
 import NotFound from "./routes/NotFound";
 import Developing from "./routes/Developing";
+import SignIn from "./routes/SignIn";
+import ProtectedRoute from "./routes/Protected";
 
 const router = createBrowserRouter([
   {
@@ -12,24 +14,33 @@ const router = createBrowserRouter([
     element: <Root />,
     children: [
       {
-        path: "",
+        index: true,
         element: <Home />,
       },
       {
-        path: "/contacts",
-        element: <Contacts />,
+        element: <ProtectedRoute />,
+        children: [
+          {
+            path: "contacts",
+            element: <Contacts />,
+          },
+          {
+            path: "documents",
+            element: <Documents />,
+          },
+          {
+            path: "documents/:contactId",
+            element: <Documents />,
+          },
+        ],
       },
       {
-        path: "/documents",
-        element: <Documents />,
-      },
-      {
-        path: "/documents/:contactId",
-        element: <Documents />,
-      },
-      {
-        path: "/logout",
+        path: "logout",
         element: <Developing />,
+      },
+      {
+        path: "login",
+        element: <SignIn />,
       },
     ],
     // errorElement: <NotFound />,

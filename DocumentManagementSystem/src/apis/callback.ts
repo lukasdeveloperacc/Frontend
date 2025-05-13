@@ -1,17 +1,16 @@
-function callback(): void {
-  const code = new URLSearchParams(window.location.search).get("code");
+async function callback(code: string | null): Promise<{ token: string }> {
+  //   const backend_url = import.meta.env.VITE_BACKEND_URL;
+  const backend_url = "http://localhost:1234";
 
-  if (code) {
-    fetch("http://localhost:80/api/auth/google", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code }),
+  return await fetch(`${backend_url}/auth/google/signin`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code }),
+  })
+    .then((res) => {
+      return res.json();
     })
-      .then((res) => console.log(res.json()))
-      .catch((err) => console.error("Login error:", err));
-  } else {
-    console.log("No Callback");
-  }
+    .catch((err) => console.error("Login error:", err));
 }
 
 export default callback;

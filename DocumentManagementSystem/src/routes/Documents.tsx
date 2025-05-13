@@ -1,164 +1,115 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
-import { customerContacs } from "../atoms";
+import { clientContacts, token } from "../atoms";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getDocuments, uploadDocuments } from "../apis/documents";
+import { useRef } from "react";
 
-type Contact = {
+interface IDocument {
   id: string;
-  name: string;
-  address: string;
-  phone: string;
-};
-
-type Document = {
-  id: string;
-  file: File;
-  fileName: string;
-  uploaded: string;
-  owner: string;
-};
+  file_name: string;
+  drive_url: string;
+  uploaded_at: string;
+  contact_id: string;
+}
 
 function Documents() {
   const { contactId } = useParams();
-  const contacts = useRecoilValue(customerContacs);
-  const [documents, setDocuments] = useState<Document[]>([
-    {
-      file: new File(["dummy"], "Invoice.pdf", { type: "application/pdf" }),
-      fileName: "Invoice.pdf",
-      uploaded: "2024-04-24",
-      owner: "John Doe",
+  const contacts = useRecoilValue(clientContacts);
+  const authToken = useRecoilValue(token);
+  let resolvedClient = null;
+  if (contactId) {
+    const newContactId = decodeURI(contactId);
+    resolvedClient =
+      contacts[contacts.findIndex((contact) => contact.id === newContactId)];
+  }
+
+  const { isLoading, data: documents } = useQuery({
+    queryKey: ["allDocuments"],
+    queryFn: () => getDocuments(authToken, resolvedClient?.id),
+  });
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
+  const { mutate: uploadMutate, isPending: uploading } = useMutation({
+    mutationFn: async (formData: FormData) =>
+      await uploadDocuments(authToken, formData, resolvedClient?.id),
+    onSuccess: async () => {
+      console.log("upload mut");
+      await queryClient.invalidateQueries({ queryKey: ["allDocuments"] });
+      if (fileInputRef.current) fileInputRef.current.value = "";
     },
-    {
-      file: new File(["dummy"], "Receipt.pdf", { type: "application/pdf" }),
-      fileName: "Receipt.pdf",
-      uploaded: "2024-04-25",
-      owner: "Jane Smith",
+    onError: () => {
+      alert("Upload failed.");
     },
-  ]);
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [selectedOwner, setSelectedOwner] = useState("");
-  const resolvedOwner = contactId
-    ? decodeURIComponent(contactId)
-    : selectedOwner;
-  const [visibleDocs, setVisibleDocs] = useState(
-    contactId ? documents.filter((d) => d.owner === resolvedOwner) : documents
-  );
-  useEffect(() => {
-    console.log("Use Effect : ", selectedOwner);
-    setVisibleDocs(
-      selectedOwner
-        ? documents.filter((d) => d.owner === selectedOwner)
-        : documents
-    );
-  }, [selectedOwner, documents]);
+  });
 
-  const handleUpload = () => {
-    if (!resolvedOwner) {
-      alert("고객을 선택하거나 URL을 통해 접근하세요.");
-      return;
-    }
+  const handleFileupload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || !resolvedClient) return;
 
-    const today = new Date().toISOString().split("T")[0];
+    const formData = new FormData();
+    Array.from(files).forEach((file) => formData.append("files", file));
 
-    const newDocs: Document[] = selectedFiles.map((file) => ({
-      file,
-      fileName: file.name,
-      uploaded: today,
-      owner: resolvedOwner,
-    }));
-
-    setDocuments((prev) => [...prev, ...newDocs]);
-    setSelectedFiles([]);
-  };
-
-  const handleDelete = (index: number) => {
-    const updated = [...documents];
-    updated.splice(index, 1);
-    setDocuments(updated);
-  };
-
-  const downloadFile = (doc: Document) => {
-    const url = URL.createObjectURL(doc.file);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = doc.fileName;
-    a.click();
-    URL.revokeObjectURL(url);
+    uploadMutate(formData);
   };
 
   return (
     <section>
       <h2 className="text-xl font-semibold mb-4">
-        Documents{resolvedOwner ? ` for ${resolvedOwner}` : ""}
+        Documents{resolvedClient ? ` for ${resolvedClient.name}` : ""}
       </h2>
 
       <div className="flex items-center gap-4 mb-4">
-        {!contactId && (
-          <select
-            value={selectedOwner}
-            onChange={(e) => {
-              setSelectedOwner(e.target.value);
-            }}
-            className="border rounded p-2"
-          >
-            <option value="">-- Select Contact --</option>
-            {contacts.map((c, i) => (
-              <option key={i} value={c.name}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        )}
-
         <input
           type="file"
-          accept=".pdf,image/*"
+          accept=".pdf"
           multiple
-          onChange={(e) => setSelectedFiles(Array.from(e.target.files ?? []))}
-          className="border p-2 rounded"
+          ref={fileInputRef}
+          onChange={handleFileupload}
+          className="hidden"
+          id="fileUpload"
         />
-
-        <button
-          onClick={handleUpload}
-          disabled={!selectedFiles.length || !resolvedOwner || !selectedOwner}
-          className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+        <label
+          htmlFor="fileUpload"
+          className="bg-blue-600 text-white px-4 py-2 rounded cursor-pointer disabled:opacity-50"
         >
-          Upload
-        </button>
+          {uploading ? "Uploading..." : "Upload PDFs"}
+        </label>
       </div>
 
-      <table className="w-full border border-collapse">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="p-2 border">File Name</th>
-            <th className="p-2 border">Uploaded</th>
-            <th className="p-2 border">Owner</th>
-            <th className="p-2 border">Download</th>
-            <th className="p-2 border">Delete</th>
-          </tr>
-        </thead>
-        <tbody>
-          {visibleDocs.map((d, i) => (
-            <tr key={i}>
-              <td className="p-2 border">{d.fileName}</td>
-              <td className="p-2 border">{d.uploaded}</td>
-              <td className="p-2 border">{d.owner}</td>
-              <td
-                className="p-2 border text-blue-600 cursor-pointer"
-                onClick={() => downloadFile(d)}
-              >
-                ⬇
-              </td>
-              <td
-                className="p-2 border text-red-600 cursor-pointer"
-                onClick={() => handleDelete(i)}
-              >
-                ✕
-              </td>
+      {isLoading ? (
+        "Loading..."
+      ) : (
+        <table className="w-full border border-collapse">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="p-2 border">File Name</th>
+              <th className="p-2 border">Uploaded</th>
+              <th className="p-2 border">Owner</th>
+              <th className="p-2 border">Delete</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {documents?.documents?.map((d, i) => (
+              <tr key={i}>
+                <td className="p-2 border text-blue-600 cursor-pointer">
+                  <a
+                    href={d.drive_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {d.file_name}
+                  </a>
+                </td>
+                <td className="p-2 border">{d.uploaded_at}</td>
+                <td className="p-2 border">{resolvedClient?.name}</td>
+                <td className="p-2 border text-red-600 cursor-pointer">✕</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </section>
   );
 }

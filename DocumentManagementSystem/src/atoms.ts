@@ -1,11 +1,20 @@
- import { atom } from "recoil";
+import { atom } from "recoil";
 
- export const customerContacs = atom({
-     key:"contacs",
-     default:[
-        { name: "John Doe", address: "123 Elm St", phone: "123-456-7890" },
-        { name: "Jane Smith", address: "456 Oak Ave", phone: "987-654-3210" },
-        { name: "Michael Johnson", address: "789 Pine Rd", phone: "555-123-4567" },
-        { name: "Emily Davis", address: "321 Maple Dr", phone: "111-222-3333" },
-  ]
- }) 
+export interface IContact {
+  id: string;
+  name: string;
+  address: string;
+  phone: string;
+  created_at: string;
+  manager_id: string;
+}
+
+export const clientContacts = atom<IContact[]>({
+  key: "contacs",
+  default: [],
+});
+
+export const token = atom<string>({
+  key: "token",
+  default: "",
+});
