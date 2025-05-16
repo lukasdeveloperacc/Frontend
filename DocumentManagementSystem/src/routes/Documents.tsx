@@ -5,14 +5,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getDocuments, uploadDocuments } from "../apis/documents";
 import { useRef } from "react";
 
-interface IDocument {
-  id: string;
-  file_name: string;
-  drive_url: string;
-  uploaded_at: string;
-  contact_id: string;
-}
-
 function Documents() {
   const { contactId } = useParams();
   const contacts = useRecoilValue(clientContacts);

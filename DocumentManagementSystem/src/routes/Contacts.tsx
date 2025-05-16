@@ -9,6 +9,7 @@ import {
 } from "../apis/contatcs";
 import { clientContacts } from "../atoms";
 import { useSetRecoilState } from "recoil";
+import { IContact } from "../atoms";
 
 function Contacts() {
   const setContacts = useSetRecoilState(clientContacts);
@@ -57,7 +58,14 @@ function Contacts() {
 
   const navigate = useNavigate();
 
-  const defaultForm = { id: "", name: "", address: "", phone: "" };
+  const defaultForm: IContact = {
+    id: "",
+    name: "",
+    address: "",
+    phone: "",
+    created_at: "",
+    manager_id: "",
+  };
   const [form, setForm] = useState(defaultForm);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -166,7 +174,7 @@ function Contacts() {
           </tr>
         </thead>
         <tbody>
-          {isLoading ? (
+          {isLoading || isPatching ? (
             <td colSpan={4} className="text-center py-4">
               Loading...
             </td>

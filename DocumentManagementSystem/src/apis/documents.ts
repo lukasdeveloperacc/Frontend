@@ -11,7 +11,7 @@ const backend_url = "http://localhost:1234";
 export async function getDocuments(
   token: string,
   clientId: string | null | undefined
-): Promise<Document[]> {
+): Promise<{ documents: Document[] }> {
   if (clientId) {
     return await fetch(`${backend_url}/api/documents/${clientId}`, {
       headers: { Authorization: `Bearer ${token}` },
