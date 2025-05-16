@@ -11,7 +11,7 @@ function GoogleLoginButton() {
       response_type: "code",
       client_id:
         "956757050949-0svmsp5s2g7s16cs5ojldec1jkp9n909.apps.googleusercontent.com",
-      redirect_uri: "http://localhost:5174",
+      redirect_uri: "http://localhost:5173",
       scope: SCOPE,
       access_type: "offline",
       prompt: "consent",

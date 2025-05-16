@@ -12,6 +12,7 @@ function Home() {
   const code: string | null = new URLSearchParams(window.location.search).get(
     "code"
   );
+  console.log("code", code);
   const { isLoading, data } = useQuery({
     queryKey: ["auth"],
     queryFn: () => callback(code),

@@ -1,6 +1,10 @@
 FROM node:23-slim
 
-COPY package* .
-RUN npm install
 
-EXPOSE 5173
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm install --production
+
+COPY . /app
+
+CMD ["npm", "run", "dev"]
