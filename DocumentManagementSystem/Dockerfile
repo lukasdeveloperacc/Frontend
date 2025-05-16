@@ -1,10 +1,8 @@
-FROM node:23-slim
-
-
+FROM node:23-slim AS builder
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm install --production
+COPY . .
+RUN npm install && npm run build
 
-COPY . /app
-
-CMD ["npm", "run", "dev"]
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
