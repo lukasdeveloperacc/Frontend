@@ -44,6 +44,8 @@ const router = createBrowserRouter([
     ],
     // errorElement: <NotFound />,
   },
-]);
+],{
+    basename: import.meta.env.BASE_URL
+  });
 
 export default router;
