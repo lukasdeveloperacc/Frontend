@@ -1,6 +1,8 @@
-FROM node:23-slim
+FROM node:23-slim AS builder
+WORKDIR /app
+COPY . .
+RUN npm install && npm run build
 
-COPY package* .
-RUN npm install
-
-EXPOSE 5173
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html/DocumentManagementSystem
+COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf

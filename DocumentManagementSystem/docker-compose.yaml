@@ -4,10 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
     image: document-management-system:v0.1.0
+    environment:
+      - BASE_URL=/DocumentManagementSystem
     working_dir: /app
-    volumes:
-      - .:/app
     ports:
-      - 5173:5173
-    stdin_open: true 
-    tty: true
+      - 5173:80
