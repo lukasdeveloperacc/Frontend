@@ -1,19 +1,29 @@
 import { createRoot } from "react-dom/client";
-import { RouterProvider } from "react-router-dom";
+import { RouterProvider, useNavigate } from "react-router-dom";
 import router from "./Router";
-// import { RecoilRoot } from "recoil";
 import "./index.css";
-import { QueryClient, QueryClientProvider } from "react-query";
-import { GoogleOAuthProvider } from "@react-oauth/google";
+import {
+  QueryClient,
+  QueryClientProvider,
+  QueryCache,
+} from "@tanstack/react-query";
+import { RecoilRoot } from "recoil";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error) => {
+      const navigate = useNavigate();
+      if (error instanceof Error && error.message.includes("401")) {
+        navigate("/login");
+      }
+    },
+  }),
+});
 
 createRoot(document.getElementById("root")!).render(
-  // <RecoilRoot>
-  <GoogleOAuthProvider clientId="956757050949-0svmsp5s2g7s16cs5ojldec1jkp9n909.apps.googleusercontent.com">
+  <RecoilRoot>
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
     </QueryClientProvider>
-  </GoogleOAuthProvider>
-  // </RecoilRoot>
+  </RecoilRoot>
 );
