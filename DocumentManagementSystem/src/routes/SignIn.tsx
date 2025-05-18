@@ -9,9 +9,8 @@ function GoogleLoginButton() {
 
     const params = new URLSearchParams({
       response_type: "code",
-      client_id:
-        "956757050949-0svmsp5s2g7s16cs5ojldec1jkp9n909.apps.googleusercontent.com",
-      redirect_uri: "http://localhost:5173",
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      redirect_uri: import.meta.env.VITE_FRONTEND_URL,
       scope: SCOPE,
       access_type: "offline",
       prompt: "consent",
