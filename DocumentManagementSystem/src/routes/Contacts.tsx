@@ -1,51 +1,54 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getContacts,
-  postContacts,
+  postContact,
   patchContact,
   deleteContact,
-} from "../apis/Contacts";
-
-type Contact = {
-  id: string;
-  name: string;
-  address: string;
-  phone: string;
-};
+} from "../apis/contatcs";
+import { clientContacts } from "../atoms";
+import { useSetRecoilState } from "recoil";
+import { IContact } from "../atoms";
 
 function Contacts() {
+  const setContacts = useSetRecoilState(clientContacts);
   const queryClient = useQueryClient();
-  const { isLoading, data: contacts } = useQuery("allContacts", getContacts);
-  const { mutate: saveContacts, isLoading: isSaving } = useMutation(
-    postContacts,
-    {
-      onSuccess: async () => {
-        await queryClient.invalidateQueries("allContacts");
-      },
-      onError: async (err) => {
-        alert("Failed to add contact");
-        console.error(err);
-      },
-    }
-  );
-  const { mutate: editContact, isLoading: isPatching } = useMutation(
-    patchContact,
-    {
-      onSuccess: async () => {
-        await queryClient.invalidateQueries("allContacts");
-      },
-      onError: async (err) => {
-        alert("Failed to update contact");
-        console.error(err);
-      },
-    }
-  );
+  const { isLoading, data: contacts } = useQuery({
+    queryKey: ["allContacts"],
+    queryFn: () => getContacts(),
+  });
+  useEffect(() => {
+    if (contacts) setContacts(contacts);
+  }, [contacts]);
 
-  const { mutate: removeContact } = useMutation(deleteContact, {
+  const { mutate: saveContacts, isPending: isSaving } = useMutation({
+    mutationFn: postContact,
+
     onSuccess: async () => {
-      await queryClient.invalidateQueries("allContacts");
+      await queryClient.invalidateQueries({ queryKey: ["allContacts"] });
+    },
+    onError: async (err) => {
+      alert("Failed to add contact");
+      console.error(err);
+    },
+  });
+
+  const { mutate: editContact, isPending: isPatching } = useMutation({
+    mutationFn: patchContact,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["allContacts"] });
+    },
+    onError: async (err) => {
+      alert("Failed to update contact");
+      console.error(err);
+    },
+  });
+
+  const { mutate: removeContact } = useMutation({
+    mutationFn: deleteContact,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["allContacts"] });
     },
     onError: (err) => {
       alert("Failed to delete contact");
@@ -55,7 +58,14 @@ function Contacts() {
 
   const navigate = useNavigate();
 
-  const defaultForm = { id: "", name: "", address: "", phone: "" };
+  const defaultForm: IContact = {
+    id: "",
+    name: "",
+    address: "",
+    phone: "",
+    created_at: "",
+    manager_id: "",
+  };
   const [form, setForm] = useState(defaultForm);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -161,11 +171,10 @@ function Contacts() {
             <th className="p-2 border">Name</th>
             <th className="p-2 border">Address</th>
             <th className="p-2 border">Phone</th>
-            <th className="p-2 border">Edit</th>
           </tr>
         </thead>
         <tbody>
-          {isLoading ? (
+          {isLoading || isPatching ? (
             <td colSpan={4} className="text-center py-4">
               Loading...
             </td>
@@ -184,7 +193,7 @@ function Contacts() {
                 <td
                   className="p-2 border text-blue-600 cursor-pointer"
                   onClick={() =>
-                    navigate(`/documents/${encodeURIComponent(c.name)}`)
+                    navigate(`/documents/${encodeURIComponent(c.id)}`)
                   }
                 >
                   View
