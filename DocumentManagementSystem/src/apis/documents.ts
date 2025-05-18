@@ -1,3 +1,4 @@
+import { env } from "../config";
 type Document = {
   id: string;
   file_name: string;
@@ -6,14 +7,12 @@ type Document = {
   contact_id: string;
 };
 
-const backend_url = "http://localhost:1234";
-
 export async function getDocuments(
   token: string,
   clientId: string | null | undefined
 ): Promise<{ documents: Document[] }> {
   if (clientId) {
-    return await fetch(`${backend_url}/api/documents/${clientId}`, {
+    return await fetch(`${env.backendUrl}/api/documents/${clientId}`, {
       headers: { Authorization: `Bearer ${token}` },
     }).then((res) => {
       const data = res.json();
@@ -21,7 +20,7 @@ export async function getDocuments(
       return data;
     });
   } else {
-    return await fetch(`${backend_url}/api/documents`, {
+    return await fetch(`${env.backendUrl}/api/documents`, {
       headers: { Authorization: `Bearer ${token}` },
     }).then((res) => {
       const data = res.json();
@@ -37,7 +36,7 @@ export async function uploadDocuments(
   clientId: string | undefined
 ) {
   const res = await fetch(
-    `${backend_url}/api/documents/upload-multiple/${clientId}`,
+    `${env.backendUrl}/api/documents/upload-multiple/${clientId}`,
     {
       method: "POST",
       headers: {

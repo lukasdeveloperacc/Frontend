@@ -1,8 +1,7 @@
-async function callback(code: string | null): Promise<{ token: string }> {
-  //   const backend_url = import.meta.env.VITE_BACKEND_URL;
-  const backend_url = "http://localhost:1234";
+import { env } from "../config";
 
-  return await fetch(`${backend_url}/auth/google/signin`, {
+async function callback(code: string | null): Promise<{ token: string }> {
+  return await fetch(`${env.backendUrl}/auth/google/signin`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ code }),

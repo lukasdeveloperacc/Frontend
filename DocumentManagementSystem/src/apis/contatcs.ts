@@ -1,13 +1,14 @@
 import { IContact } from "../atoms";
-
-const backend_url = "http://localhost:1234";
+import { env } from "../config";
 
 export async function getContacts(): Promise<IContact[]> {
-  return await fetch(`${backend_url}/api/contacts`).then((res) => res.json());
+  return await fetch(`${env.backendUrl}/api/contacts`).then((res) =>
+    res.json()
+  );
 }
 
 export async function postContact(new_contact: IContact) {
-  return await fetch(`${backend_url}/api/contacts`, {
+  return await fetch(`${env.backendUrl}/api/contacts`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(new_contact),
@@ -20,7 +21,7 @@ export async function postContact(new_contact: IContact) {
 }
 
 export async function patchContact(data: IContact) {
-  return await fetch(`${backend_url}/api/contacts/${data.id}`, {
+  return await fetch(`${env.backendUrl}/api/contacts/${data.id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -33,7 +34,7 @@ export async function patchContact(data: IContact) {
 }
 
 export async function deleteContact(id: string) {
-  return await fetch(`${backend_url}/api/contacts/${encodeURI(id)}`, {
+  return await fetch(`${env.backendUrl}/api/contacts/${encodeURI(id)}`, {
     method: "DELETE",
   })
     .then((res) => res.json())
