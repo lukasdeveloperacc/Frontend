@@ -1,3 +1,5 @@
+import { env } from "../config";
+
 function GoogleLoginButton() {
   const handleLogin = async () => {
     const SCOPE = [
@@ -9,8 +11,8 @@ function GoogleLoginButton() {
 
     const params = new URLSearchParams({
       response_type: "code",
-      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-      redirect_uri: import.meta.env.VITE_FRONTEND_URL,
+      client_id: env.googleClientId,
+      redirect_uri: env.redirectUrl,
       scope: SCOPE,
       access_type: "offline",
       prompt: "consent",
