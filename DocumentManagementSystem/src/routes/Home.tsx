@@ -20,25 +20,20 @@ function Home() {
   });
 
   useEffect(() => {
+    if (data?.token) {
+      setToken(data.token);
+    }
+  }, [data]);
+
+  useEffect(() => {
     if (isError && error.message.includes("403")) {
       navigate("/signup");
-    } else if (data?.token) {
-      setToken(data.token);
-      navigate("/contacts");
-    } else if (!code) {
+    } else {
       navigate("/login");
     }
-  }, [data, code, navigate, setToken]);
+  }, [isError, error]);
 
-  return (
-    <>
-      {authToken ? (
-        <h1>{isLoading ? "Wating..." : data?.token}</h1>
-      ) : (
-        navigate("/login")
-      )}
-    </>
-  );
+  return <>{authToken ? navigate("/contacts") : navigate("/login")}</>;
 }
 
 export default Home;
