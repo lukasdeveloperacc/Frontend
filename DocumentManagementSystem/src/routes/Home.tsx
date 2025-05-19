@@ -33,7 +33,15 @@ function Home() {
     }
   }, [isError, error]);
 
-  return <>{authToken ? navigate("/contacts") : navigate("/login")}</>;
+  return (
+    <>
+      {isLoading
+        ? "Loading ..."
+        : authToken
+        ? navigate("/contacts")
+        : navigate("/login")}
+    </>
+  );
 }
 
 export default Home;
