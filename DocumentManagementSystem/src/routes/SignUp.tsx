@@ -1,11 +1,11 @@
 import GoogleLoginButton from "../components/GoogleOAuthButton";
 
-function SignIn() {
+function SignUp() {
   return (
     <>
-      <GoogleLoginButton text={"Sign in with Google"} />
+      <GoogleLoginButton text={"Sign up with Google"} />
     </>
   );
 }
 
-export default SignIn;
+export default SignUp;

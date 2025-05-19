@@ -13,8 +13,8 @@ const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error) => {
       const navigate = useNavigate();
-      if (error instanceof Error && error.message.includes("401")) {
-        navigate("/login");
+      if (error instanceof Error && error.message.includes("403")) {
+        navigate("/signup");
       }
     },
   }),
