@@ -13,14 +13,16 @@ function Home() {
     "code"
   );
 
-  const { isLoading, data } = useQuery({
+  const { isLoading, data, isError, error } = useQuery({
     queryKey: ["auth"],
     queryFn: () => callback(code),
     enabled: !!code,
   });
 
   useEffect(() => {
-    if (data?.token) {
+    if (isError && error.message.includes("403")) {
+      navigate("/signup");
+    } else if (data?.token) {
       setToken(data.token);
       navigate("/contacts");
     } else if (!code) {
