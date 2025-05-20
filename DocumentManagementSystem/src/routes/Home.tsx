@@ -1,47 +1,48 @@
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import callback from "../apis/callback";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { token } from "../atoms";
+import { token, userId } from "../atoms";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 function Home() {
   const navigate = useNavigate();
-  const authToken: string = useRecoilValue(token);
+  const authToken = useRecoilValue(token);
   const setToken = useSetRecoilState(token);
+  const setUserId = useSetRecoilState(userId);
   const code: string | null = new URLSearchParams(window.location.search).get(
     "code"
   );
 
-  const { isLoading, data, isError, error } = useQuery({
+  useQuery({
     queryKey: ["auth"],
-    queryFn: () => callback(code),
+    queryFn: async () => {
+      const { token, userId, status } = await callback(code);
+
+      try {
+        if (token) {
+          setToken(token);
+          setUserId(userId);
+          navigate("/contacts");
+        } else if (status === 403) {
+          alert("You are not authorized to access this page. Please sign up.");
+          navigate("/signup");
+        }
+      } catch (error) {
+        console.error("Error in callback: ", error);
+        throw new Error("Error in callback");
+      }
+    },
     enabled: !!code,
   });
 
   useEffect(() => {
-    if (data?.token) {
-      setToken(data.token);
-    }
-  }, [data]);
-
-  useEffect(() => {
-    if (isError && error.message.includes("403")) {
-      navigate("/signup");
-    } else {
+    if (!authToken) {
       navigate("/login");
     }
-  }, [isError, error]);
+  }, [authToken]);
 
-  return (
-    <>
-      {isLoading
-        ? "Loading ..."
-        : authToken
-        ? navigate("/contacts")
-        : navigate("/login")}
-    </>
-  );
+  return <h1>Home</h1>;
 }
 
 export default Home;

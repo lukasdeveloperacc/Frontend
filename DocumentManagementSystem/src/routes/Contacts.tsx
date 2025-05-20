@@ -7,19 +7,22 @@ import {
   patchContact,
   deleteContact,
 } from "../apis/contatcs";
-import { clientContacts } from "../atoms";
-import { useSetRecoilState } from "recoil";
+import { clientContacts, userId } from "../atoms";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { IContact } from "../atoms";
 
 function Contacts() {
   const setContacts = useSetRecoilState(clientContacts);
+  const managerId = useRecoilValue(userId);
   const queryClient = useQueryClient();
   const { isLoading, data: contacts } = useQuery({
     queryKey: ["allContacts"],
-    queryFn: () => getContacts(),
+    queryFn: () => getContacts(managerId),
   });
+
   useEffect(() => {
     if (contacts) setContacts(contacts);
+    else setContacts([]);
   }, [contacts]);
 
   const { mutate: saveContacts, isPending: isSaving } = useMutation({
@@ -79,9 +82,9 @@ function Contacts() {
     if (editIndex !== null) {
       const contactToUpdate = contacts?.[editIndex];
       if (!contactToUpdate) return;
-      editContact(form);
+      editContact({ managerId, data: form });
     } else {
-      saveContacts(form);
+      saveContacts({ managerId, new_contact: form });
     }
 
     setShowForm(false);
@@ -202,7 +205,7 @@ function Contacts() {
                   className="p-2 border text-red-600 cursor-pointer"
                   onClick={() => {
                     if (confirm(`정말 삭제하시겠습니까?`)) {
-                      removeContact(c.id);
+                      removeContact({ managerId, id: c.id });
                     }
                   }}
                 >

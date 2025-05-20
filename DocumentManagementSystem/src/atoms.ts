@@ -18,3 +18,8 @@ export const token = atom<string>({
   key: "token",
   default: "",
 });
+
+export const userId = atom<string>({
+  key: "userId",
+  default: "",
+});
