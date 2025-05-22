@@ -9,7 +9,7 @@ type Document = {
 
 export async function getDocuments(
   token: string,
-  clientId: string | null | undefined
+  clientId: string
 ): Promise<{ documents: Document[] }> {
   if (clientId) {
     return await fetch(`${env.backendUrl}/api/documents/${clientId}`, {
@@ -33,10 +33,10 @@ export async function getDocuments(
 export async function uploadDocuments(
   token: string,
   formData: FormData,
-  clientId: string | undefined
+  contactId: string
 ) {
   const res = await fetch(
-    `${env.backendUrl}/api/documents/upload-multiple/${clientId}`,
+    `${env.backendUrl}/api/documents/upload-multiple/${contactId}`,
     {
       method: "POST",
       headers: {

@@ -1,33 +1,32 @@
 import { useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import { clientContacts, token } from "../atoms";
+import { clientContacts, token, userId } from "../atoms";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getDocuments, uploadDocuments } from "../apis/documents";
 import { useRef } from "react";
 
 function Documents() {
   const { contactId } = useParams();
+  const currentUserId = useRecoilValue(userId);
   const contacts = useRecoilValue(clientContacts);
   const authToken = useRecoilValue(token);
   let resolvedClient = null;
   if (contactId) {
-    const newContactId = decodeURI(contactId);
     resolvedClient =
-      contacts[contacts.findIndex((contact) => contact.id === newContactId)];
+      contacts[contacts.findIndex((contact) => contact.id === contactId)];
   }
 
   const { isLoading, data: documents } = useQuery({
     queryKey: ["allDocuments"],
-    queryFn: () => getDocuments(authToken, resolvedClient?.id),
+    queryFn: () => getDocuments(authToken, currentUserId),
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const { mutate: uploadMutate, isPending: uploading } = useMutation({
     mutationFn: async (formData: FormData) =>
-      await uploadDocuments(authToken, formData, resolvedClient?.id),
+      await uploadDocuments(authToken, formData, resolvedClient?.id as string),
     onSuccess: async () => {
-      console.log("upload mut");
       await queryClient.invalidateQueries({ queryKey: ["allDocuments"] });
       if (fileInputRef.current) fileInputRef.current.value = "";
     },

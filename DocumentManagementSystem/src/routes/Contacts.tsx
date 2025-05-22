@@ -195,9 +195,7 @@ function Contacts() {
                 </td>
                 <td
                   className="p-2 border text-blue-600 cursor-pointer"
-                  onClick={() =>
-                    navigate(`/documents/${encodeURIComponent(c.id)}`)
-                  }
+                  onClick={() => navigate(`/documents/${c.id}`)}
                 >
                   View
                 </td>
