@@ -136,7 +136,7 @@ function Documents() {
                   onClick={handleDelete}
                   data-document-id={d.id}
                 >
-                  {deletingId === d.id ? "Deleting..." : "✕"}
+                  {isDeleting && deletingId === d.id ? "Deleting..." : "✕"}
                 </td>
               </tr>
             ))}
