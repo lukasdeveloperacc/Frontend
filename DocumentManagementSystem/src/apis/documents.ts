@@ -9,25 +9,23 @@ type Document = {
 
 export async function getDocuments(
   token: string,
-  clientId: string
-): Promise<{ documents: Document[] }> {
-  if (clientId) {
-    return await fetch(`${env.backendUrl}/api/documents/${clientId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    }).then((res) => {
-      const data = res.json();
-      console.log(data);
-      return data;
-    });
+  managerId: string = "",
+  contactId: string = ""
+): Promise<{ documents: Document[]; owner?: string }> {
+  let url = "";
+  if (contactId) {
+    url = `${env.backendUrl}/api/documents/${contactId}`;
   } else {
-    return await fetch(`${env.backendUrl}/api/documents`, {
-      headers: { Authorization: `Bearer ${token}` },
-    }).then((res) => {
-      const data = res.json();
-      console.log(data);
-      return data;
-    });
+    url = `${env.backendUrl}/api/documents/?managerId=${managerId}`;
   }
+
+  return await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  }).then((res) => {
+    const data = res.json();
+    console.log(data);
+    return data;
+  });
 }
 
 export async function uploadDocuments(

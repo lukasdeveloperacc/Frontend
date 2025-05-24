@@ -18,7 +18,7 @@ function Documents() {
 
   const { isLoading, data: documents } = useQuery({
     queryKey: ["allDocuments"],
-    queryFn: () => getDocuments(authToken, currentUserId),
+    queryFn: () => getDocuments(authToken, currentUserId, contactId),
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -94,7 +94,15 @@ function Documents() {
                   </a>
                 </td>
                 <td className="p-2 border">{d.uploaded_at}</td>
-                <td className="p-2 border">{resolvedClient?.name}</td>
+                <td className="p-2 border">
+                  {resolvedClient
+                    ? resolvedClient.name
+                    : contacts[
+                        contacts.findIndex(
+                          (contact) => contact.id === d.contact_id
+                        )
+                      ].name}
+                </td>
                 <td className="p-2 border text-red-600 cursor-pointer">✕</td>
               </tr>
             ))}
