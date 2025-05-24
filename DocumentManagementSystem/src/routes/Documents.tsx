@@ -39,7 +39,7 @@ function Documents() {
     },
   });
 
-  const { mutate: deleteMutate, isPending } = useMutation({
+  const { mutate: deleteMutate, isPending: isDeleting } = useMutation({
     mutationFn: async (documentId: string) => {
       await deleteDocument(authToken, documentId);
     },
@@ -131,7 +131,7 @@ function Documents() {
                   onClick={handleDelete}
                   data-document-id={d.id}
                 >
-                  ✕
+                  {isDeleting ? "Deleting ..." : "✕"}
                 </td>
               </tr>
             ))}
