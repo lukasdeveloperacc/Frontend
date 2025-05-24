@@ -60,6 +60,7 @@ function Documents() {
           onChange={handleFileupload}
           className="hidden"
           id="fileUpload"
+          disabled={!resolvedClient}
         />
         <label
           htmlFor="fileUpload"
