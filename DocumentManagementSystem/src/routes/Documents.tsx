@@ -2,7 +2,11 @@ import { useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { clientContacts, token, userId } from "../atoms";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getDocuments, uploadDocuments } from "../apis/documents";
+import {
+  deleteDocument,
+  getDocuments,
+  uploadDocuments,
+} from "../apis/documents";
 import { useRef } from "react";
 
 function Documents() {
@@ -35,6 +39,18 @@ function Documents() {
     },
   });
 
+  const { mutate: deleteMutate, isPending } = useMutation({
+    mutationFn: async (documentId: string) => {
+      await deleteDocument(authToken, documentId);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["allDocuments"] });
+    },
+    onError: () => {
+      alert("Filaed to delete document");
+    },
+  });
+
   const handleFileupload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || !resolvedClient) return;
@@ -43,6 +59,12 @@ function Documents() {
     Array.from(files).forEach((file) => formData.append("files", file));
 
     uploadMutate(formData);
+  };
+
+  const handleDelete = async (e: React.MouseEvent<HTMLTableCellElement>) => {
+    const documentId = e.currentTarget.getAttribute("data-document-id");
+    if (!documentId) return;
+    deleteMutate(documentId);
   };
 
   return (
@@ -104,7 +126,13 @@ function Documents() {
                         )
                       ].name}
                 </td>
-                <td className="p-2 border text-red-600 cursor-pointer">✕</td>
+                <td
+                  className="p-2 border text-red-600 cursor-pointer"
+                  onClick={handleDelete}
+                  data-document-id={d.id}
+                >
+                  ✕
+                </td>
               </tr>
             ))}
           </tbody>

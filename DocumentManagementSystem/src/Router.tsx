@@ -6,7 +6,6 @@ import Home from "./routes/Home";
 import Developing from "./routes/Developing";
 import SignIn from "./routes/SignIn";
 import ProtectedRoute from "./routes/Protected";
-import SignUp from "./routes/SignUp";
 
 const router = createBrowserRouter(
   [
@@ -42,10 +41,6 @@ const router = createBrowserRouter(
         {
           path: "login",
           element: <SignIn />,
-        },
-        {
-          path: "signup",
-          element: <SignUp />,
         },
       ],
       // errorElement: <NotFound />,

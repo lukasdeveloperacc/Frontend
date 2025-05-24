@@ -50,3 +50,18 @@ export async function uploadDocuments(
 
   return await res.json();
 }
+
+export async function deleteDocument(token: string, documentId: string) {
+  const res = await fetch(`${env.backendUrl}/api/documents/${documentId}}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Delete failed");
+  }
+
+  return await res.json();
+}

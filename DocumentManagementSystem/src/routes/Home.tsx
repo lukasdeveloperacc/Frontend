@@ -17,17 +17,12 @@ function Home() {
   useQuery({
     queryKey: ["auth"],
     queryFn: async () => {
-      const { token, userId, status } = await callback(code);
+      const { token, userId } = await callback(code);
 
       try {
-        if (token) {
-          setToken(token);
-          setUserId(userId);
-          navigate("/contacts");
-        } else if (status === 403) {
-          alert("You are not authorized to access this page. Please sign up.");
-          navigate("/signup");
-        }
+        setToken(token);
+        setUserId(userId);
+        navigate("/contacts");
       } catch (error) {
         console.error("Error in callback: ", error);
         throw new Error("Error in callback");
