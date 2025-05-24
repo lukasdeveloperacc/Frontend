@@ -52,7 +52,7 @@ export async function uploadDocuments(
 }
 
 export async function deleteDocument(token: string, documentId: string) {
-  const res = await fetch(`${env.backendUrl}/api/documents/${documentId}}`, {
+  const res = await fetch(`${env.backendUrl}/api/documents/${documentId}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,

@@ -7,7 +7,7 @@ import {
   getDocuments,
   uploadDocuments,
 } from "../apis/documents";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 function Documents() {
   const { contactId } = useParams();
@@ -39,15 +39,20 @@ function Documents() {
     },
   });
 
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
   const { mutate: deleteMutate, isPending: isDeleting } = useMutation({
     mutationFn: async (documentId: string) => {
+      setDeletingId(documentId);
       await deleteDocument(authToken, documentId);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["allDocuments"] });
+      setDeletingId(null);
     },
     onError: () => {
-      alert("Filaed to delete document");
+      alert("Failed to delete document");
+      setDeletingId(null);
     },
   });
 
@@ -131,7 +136,7 @@ function Documents() {
                   onClick={handleDelete}
                   data-document-id={d.id}
                 >
-                  {isDeleting ? "Deleting ..." : "✕"}
+                  {deletingId === d.id ? "Deleting..." : "✕"}
                 </td>
               </tr>
             ))}
